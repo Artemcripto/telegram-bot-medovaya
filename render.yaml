@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: telegram-bot-medovaya
+    env: php
+    plan: free
+    buildCommand: ""
+    startCommand: php -S 0.0.0.0:10000 index.php
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        value: your_bot_token_here
