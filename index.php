@@ -147,8 +147,26 @@ function getChatGPTAnswerWithContext($user_input, $apiKey, $chat_id) {
     $options = ["http" => ["method" => "POST", "header" => "Content-Type: application/json\r\nAuthorization: Bearer $apiKey", "content" => json_encode($data)]];
     $response = file_get_contents("https://api.openai.com/v1/chat/completions", false, stream_context_create($options));
     $result = json_decode($response, true);
-    $reply = $result["choices"][0]["message"]["content"] ?? "Извините, произошла ошибка при получении ответа.";
-    $context[] = ["role" => "assistant", "content" => $reply];
-    file_put_contents($session_file, json_encode(array_slice($context, -10)));
-    return $reply;
+   $reply = $result["choices"][0]["message"]["content"] ?? "";
+
+// Если GPT дал слабый/короткий/непонятный ответ — пересылаем админу
+if (mb_strlen(trim($reply)) < 10 || stripos($reply, "не знаю") !== false || stripos($reply, "не могу помочь") !== false) {
+    $keyboard = [
+        "inline_keyboard" => [
+            [[
+                "text" => "✍ Ответить",
+                "callback_data" => "reply_to_$chat_id"
+            ]]
+        ]
+    ];
+    sendInlineButtons($admin_chat_id, "❗️ Новый вопрос от пользователя:\n\n\"$user_input\"\n\n🆔 $chat_id", $keyboard);
+
+    return "⏳ Я передал ваш вопрос администратору. Он скоро свяжется с вами.";
 }
+
+// Иначе — GPT дал нормальный ответ
+$context[] = ["role" => "assistant", "content" => $reply];
+file_put_contents($session_file, json_encode(array_slice($context, -10)));
+
+return $reply;
+
