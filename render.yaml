@@ -5,6 +5,3 @@ services:
     plan: free
     buildCommand: ""
     startCommand: php -S 0.0.0.0:$PORT index.php
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        value: 7294939259:AAEH4hZwwzqBTAYIN5ti9j5hnD_-f1JJ5NA
