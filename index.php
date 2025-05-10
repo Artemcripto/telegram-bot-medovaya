@@ -136,7 +136,7 @@ function sendInlineButtons($chat_id, $text, $buttons) {
 }
 
 function getChatGPTAnswerWithContext($user_input, $apiKey, $chat_id) {
-    global $session_file;
+    global $session_file, $admin_chat_id;
     $context = file_exists($session_file) ? json_decode(file_get_contents($session_file), true) : [];
     $context[] = ["role" => "user", "content" => $user_input];
     $messages = array_merge([
